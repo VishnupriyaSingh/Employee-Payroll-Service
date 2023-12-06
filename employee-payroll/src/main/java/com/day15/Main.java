@@ -1,5 +1,4 @@
 package com.day15;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -16,5 +15,6 @@ public class Main {
         int entries = service.countEntriesInFile(filePath);
         System.out.println("Number of entries in file: " + entries);
 
-    }
+        service.printEmployeePayrollsFromFile(filePath);
+}
 }
