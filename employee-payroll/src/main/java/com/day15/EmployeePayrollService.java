@@ -2,27 +2,19 @@ package com.day15;
 
 import java.util.Scanner;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
 public class EmployeePayrollService {
 
-    private EmployeePayroll readEmployeePayrollData() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter Employee ID: ");
-        int id = scanner.nextInt();
-        System.out.print("Enter Employee Name: ");
-        String name = scanner.next();
-        System.out.print("Enter Employee Salary: ");
-        double salary = scanner.nextDouble();
+    private List<EmployeePayroll> employeePayrollList;
 
-        return new EmployeePayroll(id, name, salary);
+    public EmployeePayrollService() {
+        this.employeePayrollList = new ArrayList<>();
     }
 
-    private void writeEmployeePayrollData(EmployeePayroll employeePayroll) {
-        System.out.println("Employee Payroll Data: " + employeePayroll);
-    }
-
-    public static void main(String[] args) {
-        EmployeePayrollService service = new EmployeePayrollService();
-        EmployeePayroll employeePayroll = service.readEmployeePayrollData();
-        service.writeEmployeePayrollData(employeePayroll);
+    public void addEmployee(EmployeePayroll employee) {
+        employeePayrollList.add(employee);
     }
 }
