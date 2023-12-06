@@ -1,19 +1,20 @@
 package com.day15;
 
+import java.io.IOException;
+import java.util.List;
+
 public class Main {
     public static void main(String[] args) {
-        String directoryToWatch = "testDir";
-        DirectoryWatchService watchService = new DirectoryWatchService(directoryToWatch);
+        EmployeePayrollService service = new EmployeePayrollService();
 
-        try {
-            watchService.startWatching();
-        } 
-        catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        service.addEmployee(new EmployeePayroll(1, "Alice", 30000));
+        service.addEmployee(new EmployeePayroll(2, "Bob", 40000));
 
-        // Count entries in the directory
-        int count = DirectoryUtils.countEntriesInDirectory(directoryToWatch);
-        System.out.println("Number of entries in the directory: " + count);
+        String filePath = "employees.txt";
+        service.writeEmployeePayrollDataToFile(filePath);
+
+        int entries = service.countEntriesInFile(filePath);
+        System.out.println("Number of entries in file: " + entries);
+
     }
 }
