@@ -17,4 +17,26 @@ public class EmployeePayrollService {
     public void addEmployee(EmployeePayroll employee) {
         employeePayrollList.add(employee);
     }
+
+    public void writeEmployeePayrollDataToFile(String filePath) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            for (EmployeePayroll employee : employeePayrollList) {
+                writer.write(employee.toString() + "\n");
+            }
+            System.out.println("Employee Payroll Data written to file successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int countEntriesInFile(String filePath) {
+        int lineCount = 0;
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            while (reader.readLine() != null) lineCount++;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return lineCount;
+    }
+
 }
