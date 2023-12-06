@@ -50,4 +50,34 @@ public class EmployeePayrollService {
         }
     }
 
+    public List<EmployeePayroll> readEmployeePayrollDataFromFile(String filePath) {
+        List<EmployeePayroll> payrollList = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                EmployeePayroll employee = parseEmployeePayroll(line);
+                if (employee != null) {
+                    payrollList.add(employee);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return payrollList;
+    }
+
+    private EmployeePayroll parseEmployeePayroll(String data) {
+        try {
+            String[] parts = data.split(",\\s*");
+            // Assuming the format is like "EmployeePayroll{id=1, name='Alice', salary=30000.0}"
+            int id = Integer.parseInt(parts[0].split("=")[1]);
+            String name = parts[1].split("'")[1]; // Splitting by single quote to extract the name
+            double salary = Double.parseDouble(parts[2].split("=")[1].replaceAll("[^\\d.]", "")); // Removing any non-numeric characters from the salary
+
+            return new EmployeePayroll(id, name, salary);
+        } catch (Exception e) {
+            System.err.println("Error parsing payroll data: " + data);
+            return null;
+        }
+    }
 }
