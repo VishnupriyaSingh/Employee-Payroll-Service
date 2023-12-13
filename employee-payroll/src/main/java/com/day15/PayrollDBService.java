@@ -105,4 +105,42 @@ public class PayrollDBService {
         }
         return stats;
     }
+
+    // UC7
+    public EmpPayroll addEmployeeToPayroll(int id, String name, double salary, Date startDate, String gender,
+            String phone, String address, String department, double basicPay, double deductions, double taxablePay,
+            double incomeTax, double netPay) throws SQLException {
+        String insertQuery = "INSERT INTO employee_payroll (ID, Name, Salary, Start, Gender, Phone, Address, Department, BasicPay, Deductions, TaxablePay, IncomeTax, NetPay) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(insertQuery,
+                Statement.RETURN_GENERATED_KEYS)) {
+            preparedStatement.setInt(1, id);
+            preparedStatement.setString(2, name);
+            preparedStatement.setDouble(3, salary);
+            preparedStatement.setDate(4, new java.sql.Date(startDate.getTime()));
+            preparedStatement.setString(5, gender);
+            preparedStatement.setString(6, phone);
+            preparedStatement.setString(7, address);
+            preparedStatement.setString(8, department);
+            preparedStatement.setDouble(9, basicPay);
+            preparedStatement.setDouble(10, deductions);
+            preparedStatement.setDouble(11, taxablePay);
+            preparedStatement.setDouble(12, incomeTax);
+            preparedStatement.setDouble(13, netPay);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("Adding employee failed, no rows affected.");
+            }
+
+            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    int ID = generatedKeys.getInt(1);
+                    return new EmpPayroll(ID, name, gender, salary, startDate, phone, address, department,
+                            basicPay, deductions, taxablePay, incomeTax, netPay);
+                } else {
+                    throw new SQLException("Adding employee failed, no ID obtained.");
+                }
+            }
+        }
+    }
 }
