@@ -143,4 +143,76 @@ public class PayrollDBService {
             }
         }
     }
+
+    // UC8
+    public EmpPayroll addEmployeeWithPayrollDetails(int id, String name, double salary, Date startDate,
+            String gender, String phone, String address, String department, double basicPay, double deductions,
+            double taxablePay, double incomeTax, double netPay) throws SQLException {
+        String insertEmployeeQuery = "INSERT INTO employee_payroll (ID, Name, Salary, Start, Gender, Phone, Address, Department, BasicPay, Deductions, TaxablePay, IncomeTax, NetPay) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String insertPayrollDetailsQuery = "INSERT INTO payroll_details (employee_id, deductions, taxable_pay, tax, net_pay) VALUES (?, ?, ?, ?, ?)";
+
+        try (PreparedStatement employeeStatement = connection.prepareStatement(insertEmployeeQuery,
+                Statement.RETURN_GENERATED_KEYS);
+                PreparedStatement payrollDetailsStatement = connection.prepareStatement(insertPayrollDetailsQuery)) {
+
+            connection.setAutoCommit(false);
+
+            employeeStatement.setInt(1, id);
+            employeeStatement.setString(2, name);
+            employeeStatement.setDouble(3, salary);
+            employeeStatement.setDate(4, new java.sql.Date(startDate.getTime()));
+            employeeStatement.setString(5, gender);
+            employeeStatement.setString(6, phone);
+            employeeStatement.setString(7, address);
+            employeeStatement.setString(8, department);
+            employeeStatement.setDouble(9, basicPay);
+            employeeStatement.setDouble(10, deductions);
+            employeeStatement.setDouble(11, taxablePay);
+            employeeStatement.setDouble(12, incomeTax);
+            employeeStatement.setDouble(13, netPay);
+            int employeeRowsAffected = employeeStatement.executeUpdate();
+
+            if (employeeRowsAffected == 0) {
+                throw new SQLException("Adding employee failed, no rows affected.");
+            }
+
+            int employeeId;
+            try (ResultSet generatedKeys = employeeStatement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    employeeId = generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("Adding employee failed, no ID obtained.");
+                }
+            }
+
+            // Calculate payroll details
+            double deductionsPD = salary * 0.2;
+            double taxablePayPD = salary - deductionsPD;
+            double tax = taxablePayPD * 0.1;
+            double netPayPD = salary - tax;
+
+            // Insert into payroll_details
+            payrollDetailsStatement.setInt(1, employeeId);
+            payrollDetailsStatement.setDouble(2, deductionsPD);
+            payrollDetailsStatement.setDouble(3, taxablePayPD);
+            payrollDetailsStatement.setDouble(4, tax);
+            payrollDetailsStatement.setDouble(5, netPayPD);
+            int payrollRowsAffected = payrollDetailsStatement.executeUpdate();
+
+            if (payrollRowsAffected == 0) {
+                throw new SQLException("Adding payroll details failed, no rows affected.");
+            }
+
+            connection.commit();
+
+            return new EmpPayroll(id, name, gender, salary, startDate, phone, address, department, basicPay,
+                    deductions, taxablePay, incomeTax, netPay);
+
+        } catch (SQLException e) {
+            connection.rollback();
+            throw e;
+        } finally {
+            connection.setAutoCommit(true);
+        }
+    }
 }

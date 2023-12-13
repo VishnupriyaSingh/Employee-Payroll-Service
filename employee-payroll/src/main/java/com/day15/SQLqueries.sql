@@ -244,3 +244,13 @@ FROM Employee
 JOIN SalaryDetails ON Employee.EmployeeID = SalaryDetails.EmployeeID
 WHERE Employee.Gender = 'M';
 -- 2083.3333333333335
+
+CREATE TABLE payroll_details (
+    employee_id INT unsigned NOT NULL,
+    deductions DOUBLE,
+    taxable_pay DOUBLE,
+    tax DOUBLE,
+    net_pay DOUBLE,
+    FOREIGN KEY (employee_id) REFERENCES employee_payroll(ID)
+);
+-- CREATE TABLE payroll_details (employee_id INT unsigned NOT NULL, ...)
