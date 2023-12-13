@@ -17,7 +17,7 @@ public class EPService {
     public static List<EmpPayroll> getEmpPayrollData() throws PayrollServiceException {
         String jdbcUrl = "jdbc:mysql://localhost:3306/payroll_service";
         String username = "root";
-        String password = "anubhav08";
+        String password = "Priya@002";
 
         List<EmpPayroll> payrollList = new ArrayList<>();
 
