@@ -68,7 +68,7 @@ public class EPService {
                 }
             }
         } catch (SQLException e) {
-            throw new PayrollServiceException("Database error occurred while retrieving employee data");
+            throw new PayrollServiceException("Database error occurred while retrieving employee data.");
         }
     }
 }
