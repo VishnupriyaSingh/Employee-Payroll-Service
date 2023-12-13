@@ -12,7 +12,7 @@ public class PayrollDBService {
     public PayrollDBService() {
         String jdbcUrl = "jdbc:mysql://localhost:3306/payroll_service?useSSL=false&allowPublicKeyRetrieval=true";
         String username = "root";
-        String password = "anubhav08";
+        String password = "Priya@002";
 
         try {
             this.connection = DriverManager.getConnection(jdbcUrl, username, password);
@@ -81,5 +81,28 @@ public class PayrollDBService {
             }
         }
         return employeeList;
+    }
+
+    // UC6
+    public Map<String, Map<String, Double>> getSalaryStatsByGender() throws SQLException {
+        Map<String, Map<String, Double>> stats = new HashMap<>();
+        String query = "SELECT gender, SUM(salary) as total_salary, AVG(salary) as avg_salary, MIN(salary) as min_salary, MAX(salary) as max_salary, COUNT(*) as employee_count FROM employee_payroll GROUP BY gender";
+
+        try (Statement statement = connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(query);
+
+            while (resultSet.next()) {
+                String gender = resultSet.getString("gender");
+                Map<String, Double> genderStats = new HashMap<>();
+                genderStats.put("sum", resultSet.getDouble("total_salary"));
+                genderStats.put("avg", resultSet.getDouble("avg_salary"));
+                genderStats.put("min", resultSet.getDouble("min_salary"));
+                genderStats.put("max", resultSet.getDouble("max_salary"));
+                genderStats.put("count", (double) resultSet.getInt("employee_count"));
+
+                stats.put(gender, genderStats);
+            }
+        }
+        return stats;
     }
 }
