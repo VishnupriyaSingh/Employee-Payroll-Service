@@ -12,7 +12,7 @@ public class PayrollDBService {
     public PayrollDBService() {
         String jdbcUrl = "jdbc:mysql://localhost:3306/payroll_service?useSSL=false&allowPublicKeyRetrieval=true";
         String username = "root";
-        String password = "anubhav08";
+        String password = "Priya@002";
 
         try {
             this.connection = DriverManager.getConnection(jdbcUrl, username, password);
