@@ -379,4 +379,43 @@ public class PayrollDBService {
             }
         }
     }
+
+    // UC12
+    public boolean removeEmployee(int employeeId) throws SQLException {
+        String updateQuery = "UPDATE employee_payroll SET is_active = FALSE WHERE ID = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
+            preparedStatement.setInt(1, employeeId);
+            int affectedRows = preparedStatement.executeUpdate();
+            return affectedRows > 0;
+        }
+    }
+
+    public List<EmpPayroll> getActiveEmployeePayrollData() throws SQLException {
+        List<EmpPayroll> employeeList = new ArrayList<>();
+        String query = "SELECT * FROM employee_payroll WHERE is_active = TRUE";
+
+        try (Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(query)) {
+
+            while (resultSet.next()) {
+                EmpPayroll employee = new EmpPayroll(
+                        resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("gender"),
+                        resultSet.getDouble("salary"),
+                        resultSet.getDate("Start"),
+                        resultSet.getString("phone"),
+                        resultSet.getString("address"),
+                        resultSet.getString("department"),
+                        resultSet.getDouble("basicPay"),
+                        resultSet.getDouble("deductions"),
+                        resultSet.getDouble("taxablePay"),
+                        resultSet.getDouble("incomeTax"),
+                        resultSet.getDouble("netPay"));
+                employee.setId(resultSet.getInt("id"));
+                employeeList.add(employee);
+            }
+        }
+        return employeeList;
+    }
 }
