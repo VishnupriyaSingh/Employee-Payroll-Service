@@ -215,4 +215,117 @@ public class PayrollDBService {
             connection.setAutoCommit(true);
         }
     }
+
+    // UC10_2
+    public List<EmployeePayroll2> getEmpPayrollData() throws SQLException {
+        List<EmployeePayroll2> employeeList = new ArrayList<>();
+        String query = "SELECT e.*, GROUP_CONCAT(d.DepartmentName SEPARATOR ', ') as departments FROM employee_payroll e LEFT JOIN EmployeeDepartment ed ON e.ID = ed.EmployeeID LEFT JOIN department d ON ed.DepartmentID = d.DepartmentID GROUP BY e.ID";
+
+        try (Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(query)) {
+            while (resultSet.next()) {
+                String departmentString = resultSet.getString("departments");
+                List<String> departments;
+
+                if (departmentString != null && !departmentString.isEmpty()) {
+                    departments = Arrays.asList(departmentString.split(",\\s*"));
+                } else {
+                    departments = new ArrayList<>();
+                }
+                EmployeePayroll2 employee = new EmployeePayroll2(
+                        resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("gender"),
+                        resultSet.getDouble("salary"),
+                        resultSet.getDate("Start"),
+                        resultSet.getString("phone"),
+                        resultSet.getString("address"),
+                        resultSet.getString("department"),
+                        resultSet.getDouble("basicPay"),
+                        resultSet.getDouble("deductions"),
+                        resultSet.getDouble("taxablePay"),
+                        resultSet.getDouble("incomeTax"),
+                        resultSet.getDouble("netPay"),
+                        departments);
+                String departmentString1 = resultSet.getString("departments");
+                if (departmentString1 != null) {
+                    employee.setDepartments(Arrays.asList(departmentString1.split(", ")));
+                } else {
+                    employee.setDepartments(new ArrayList<>());
+                }
+                employeeList.add(employee);
+            }
+        }
+        return employeeList;
+    }
+
+    // UC10_3_4
+    public boolean updateEmployeeSalary(String name, double newSalary) throws SQLException {
+        String updateQuery = "UPDATE employee_payroll SET Salary = ? WHERE Name = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
+            preparedStatement.setDouble(1, newSalary);
+            preparedStatement.setString(2, name);
+            int rowsAffected = preparedStatement.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
+    // UC10_5
+    public List<EmployeePayroll2> getEmployeesJoinedInRange2(Date startDate, Date endDate) throws SQLException {
+        List<EmployeePayroll2> employeeList = new ArrayList<>();
+        String query = "SELECT e.*, GROUP_CONCAT(d.DepartmentName SEPARATOR ', ') as departments FROM employee_payroll e LEFT JOIN EmployeeDepartment ed ON e.ID = ed.EmployeeID LEFT JOIN department d ON ed.DepartmentID = d.DepartmentID WHERE e.Start BETWEEN ? AND ? GROUP BY e.ID";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setDate(1, new java.sql.Date(startDate.getTime()));
+            preparedStatement.setDate(2, new java.sql.Date(endDate.getTime()));
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    String departmentString = resultSet.getString("departments");
+                    List<String> departments;
+
+                    if (departmentString != null && !departmentString.isEmpty()) {
+                        departments = Arrays.asList(departmentString.split(",\\s*"));
+                    } else {
+                        departments = new ArrayList<>();
+                    }
+                    EmployeePayroll2 employee = new EmployeePayroll2(
+                            resultSet.getInt("id"),
+                            resultSet.getString("name"),
+                            resultSet.getString("gender"),
+                            resultSet.getDouble("salary"),
+                            resultSet.getDate("Start"),
+                            resultSet.getString("phone"),
+                            resultSet.getString("address"),
+                            resultSet.getString("department"),
+                            resultSet.getDouble("basicPay"),
+                            resultSet.getDouble("deductions"),
+                            resultSet.getDouble("taxablePay"),
+                            resultSet.getDouble("incomeTax"),
+                            resultSet.getDouble("netPay"),
+                            departments);
+                    employee.setDepartments(Arrays.asList(resultSet.getString("departments").split(", ")));
+                    employeeList.add(employee);
+                }
+            }
+        }
+        return employeeList;
+    }
+
+    // UC10_6
+    public Map<String, Map<String, Double>> getSalaryStatsByGender2() throws SQLException {
+        Map<String, Map<String, Double>> stats = new HashMap<>();
+        String query = "SELECT gender, SUM(salary) as total_salary, AVG(salary) as avg_salary, MIN(salary) as min_salary, MAX(salary) as max_salary, COUNT(*) as employee_count FROM employee_payroll GROUP BY gender";
+        try (Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(query)) {
+            while (resultSet.next()) {
+                Map<String, Double> genderStats = new HashMap<>();
+                genderStats.put("sum", resultSet.getDouble("total_salary"));
+                genderStats.put("avg", resultSet.getDouble("avg_salary"));
+                genderStats.put("min", resultSet.getDouble("min_salary"));
+                genderStats.put("max", resultSet.getDouble("max_salary"));
+                genderStats.put("count", (double) resultSet.getInt("employee_count"));
+                stats.put(resultSet.getString("gender"), genderStats);
+            }
+        }
+        return stats;
+    }
 }
