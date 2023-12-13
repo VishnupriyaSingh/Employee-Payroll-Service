@@ -2,19 +2,13 @@ package com.day15;
 
 import java.sql.SQLException;
 import java.sql.Date;
-import java.util.List;
-import java.util.Map;
 
 public class EPService {
-
     public static void main(String[] args) {
         PayrollDBService payrollDBService = PayrollDBService.getInstance();
         try {
-            Map<String, Map<String, Double>> salaryStats = payrollDBService.getSalaryStatsByGender();
-            salaryStats.forEach((gender, stats) -> {
-                System.out.println("Gender: " + gender);
-                stats.forEach((stat, value) -> System.out.println(stat + ": " + value));
-            });
+            EmpPayroll newEmployee = payrollDBService.addEmployeeToPayroll(78, "Arnav", 12000, new Date(2023-12-12), "M", "1234567890", "Address 78", "QA", 5000, 1200, 7000, 700, 9000);
+            System.out.println("New Employee Added: " + newEmployee.getName());
         } catch (SQLException e) {
             e.printStackTrace();
         }
