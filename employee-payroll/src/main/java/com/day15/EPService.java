@@ -44,7 +44,7 @@ public class EPService {
                 }
             }
         } catch (SQLException e) {
-            throw new PayrollServiceException("Failed to retrieve payroll data", e);
+            throw new PayrollServiceException("Failed to retrieve payroll data!", e);
         }
 
         return payrollList;
