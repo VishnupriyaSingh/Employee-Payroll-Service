@@ -15,7 +15,6 @@ public class DirectoryUtils {
         if (files != null) {
             return files.length;
         }
-
         return 0;
     }
 }
