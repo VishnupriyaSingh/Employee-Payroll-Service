@@ -217,7 +217,7 @@ public class PayrollDBService {
     }
 
     // UC10_2
-    public List<EmployeePayroll2> getEmpPayrollData() throws SQLException {
+    public List<EmployeePayroll2> getEmployeePayrollData() throws SQLException {
         List<EmployeePayroll2> employeeList = new ArrayList<>();
         String query = "SELECT e.*, GROUP_CONCAT(d.DepartmentName SEPARATOR ', ') as departments FROM employee_payroll e LEFT JOIN EmployeeDepartment ed ON e.ID = ed.EmployeeID LEFT JOIN department d ON ed.DepartmentID = d.DepartmentID GROUP BY e.ID";
 
@@ -327,5 +327,56 @@ public class PayrollDBService {
             }
         }
         return stats;
+    }
+
+    // UC10_7
+    public int addEmployee(int id, String name, String gender, double salary, java.util.Date startDate, String phone,
+            String address, String department, double basicPay, double deductions, double taxablePay, double incomeTax,
+            double netPay) throws SQLException {
+        String insertEmployeeQuery = "INSERT INTO employee_payroll (ID, Name, Salary, Start, Gender, Phone, Address, Department, BasicPay, Deductions, TaxablePay, IncomeTax, NetPay) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        int employeeId = 0;
+
+        try (PreparedStatement employeeStatement = connection.prepareStatement(insertEmployeeQuery,
+                Statement.RETURN_GENERATED_KEYS)) {
+            employeeStatement.setInt(1, id);
+            employeeStatement.setString(2, name);
+            employeeStatement.setDouble(3, salary);
+            employeeStatement.setDate(4, new java.sql.Date(startDate.getTime()));
+            employeeStatement.setString(5, gender);
+            employeeStatement.setString(6, phone);
+            employeeStatement.setString(7, address);
+            employeeStatement.setString(8, department);
+            employeeStatement.setDouble(9, basicPay);
+            employeeStatement.setDouble(10, deductions);
+            employeeStatement.setDouble(11, taxablePay);
+            employeeStatement.setDouble(12, incomeTax);
+            employeeStatement.setDouble(13, netPay);
+            int affectedRows = employeeStatement.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new SQLException("Creating employee failed, no rows affected.");
+            }
+
+            try (ResultSet generatedKeys = employeeStatement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    employeeId = generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("Creating employee failed, no ID obtained.");
+                }
+            }
+        }
+        return employeeId;
+    }
+
+    public void addEmployeeToDepartments(int employeeId, List<Integer> departmentIds) throws SQLException {
+        String insertDepartmentQuery = "INSERT INTO EmployeeDepartment (EmployeeID, DepartmentID) VALUES (?, ?)";
+
+        try (PreparedStatement departmentStatement = connection.prepareStatement(insertDepartmentQuery)) {
+            for (int deptId : departmentIds) {
+                departmentStatement.setInt(1, employeeId);
+                departmentStatement.setInt(2, deptId);
+                departmentStatement.executeUpdate();
+            }
+        }
     }
 }
