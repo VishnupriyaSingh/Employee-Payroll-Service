@@ -254,3 +254,6 @@ CREATE TABLE payroll_details (
     FOREIGN KEY (employee_id) REFERENCES employee_payroll(ID)
 );
 -- CREATE TABLE payroll_details (employee_id INT unsigned NOT NULL, ...)
+
+ALTER TABLE employee_payroll 
+ADD is_active TINYINT(1) NOT NULL DEFAULT '1';
